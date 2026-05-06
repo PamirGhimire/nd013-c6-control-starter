@@ -10,25 +10,40 @@
 class PID {
 public:
 
-   /**
-   * TODO: Create the PID class
-   **/
-
+    // Create the PID class, modify section until END OF TODO
     /*
     * Errors
     */
+    double p_error; //cte
+    double i_error; //cumulative cte
+    double d_error; //differential cte
+    double previous_cte;
 
     /*
     * Coefficients
     */
+    double Kp;
+    double Ki;
+    double Kd;
 
     /*
-    * Output limits
+    * Output limits for throttle
     */
+    const double throttle_output_lim_max{1.0};
+    const double throttle_output_lim_min{-1.0};
+
+    /*
+    * Output limits for throttle
+    */
+    const double steer_output_lim_max{1.2};
+    const double steer_output_lim_min{-1.2};
+
   
     /*
     * Delta time
     */
+    double delta_time;
+
 
     /*
     * Constructor
@@ -43,7 +58,7 @@ public:
     /*
     * Initialize PID.
     */
-    void Init(double Kp, double Ki, double Kd, double output_lim_max, double output_lim_min);
+    void Init(double Kp, double Ki, double Kd);
 
     /*
     * Update the PID error variables given cross track error.
