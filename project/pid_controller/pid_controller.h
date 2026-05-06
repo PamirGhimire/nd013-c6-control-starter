@@ -14,9 +14,9 @@ public:
     /*
     * Errors
     */
-    double p_error; //cte
-    double i_error; //cumulative cte
-    double d_error; //differential cte
+    double p_error;
+    double i_error;
+    double d_error;
     double previous_cte;
 
     /*
@@ -27,16 +27,10 @@ public:
     double Kd;
 
     /*
-    * Output limits for throttle
+    * Output limits 
     */
-    const double throttle_output_lim_max{1.0};
-    const double throttle_output_lim_min{-1.0};
-
-    /*
-    * Output limits for throttle
-    */
-    const double steer_output_lim_max{1.2};
-    const double steer_output_lim_min{-1.2};
+    double output_lim_max;
+    double output_lim_min;
 
   
     /*
@@ -58,12 +52,12 @@ public:
     /*
     * Initialize PID.
     */
-    void Init(double Kp, double Ki, double Kd);
+    void Init(double Kp, double Ki, double Kd, double output_lim_min_spec, double output_lim_max_spec);
 
     /*
-    * Update the PID error variables given cross track error.
+    * Update the PID error variables using desired - actual error.
     */
-    void UpdateError(double cte);
+    void UpdateError(double error);
 
     /*
     * Calculate the total PID error.

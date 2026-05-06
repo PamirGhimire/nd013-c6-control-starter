@@ -15,11 +15,13 @@ PID::PID() {}
 
 PID::~PID() {}
 
-void PID::Init(double Kpi, double Kii, double Kdi) {
+void PID::Init(double Kpi, double Kii, double Kdi, double output_lim_min_spec, double output_lim_max_spec) {
     Kp = Kpi;
     Ki = Kii;
     Kd = Kdi;
-
+    output_lim_min = output_lim_min_spec;
+    output_lim_max = output_lim_max_spec;
+    
     p_error = 0.0;
     i_error = 0.0;
     d_error = 0.0;
@@ -28,20 +30,20 @@ void PID::Init(double Kpi, double Kii, double Kdi) {
 }
 
 
-void PID::UpdateError(double cte) {
-    d_error = delta_time > 0.0 ? (cte - previous_cte) / delta_time : 0.0;
-    p_error = cte;
-    i_error += cte * delta_time;
-    previous_cte = cte;
+void PID::UpdateError(double error) {
+    d_error = delta_time > 0.0 ? (error - previous_cte) / delta_time : 0.0;
+    p_error = error;
+    i_error += error * delta_time;
+    previous_cte = error;
 }
 
 double PID::TotalError() {
-    double control = -(Kp * p_error + Ki * i_error + Kd * d_error);
-    if (control > throttle_output_lim_max) {
-        return throttle_output_lim_max;
+    double control = Kp * p_error + Ki * i_error + Kd * d_error;
+    if (control > output_lim_max) {
+        return output_lim_max;
     }
-    if (control < throttle_output_lim_min) {
-        return throttle_output_lim_min;
+    if (control < output_lim_min) {
+        return output_lim_min;
     }
     return control;
 }
