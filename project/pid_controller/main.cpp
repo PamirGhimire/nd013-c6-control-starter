@@ -92,6 +92,21 @@ MotionPlanner motion_planner(P_NUM_PATHS, P_GOAL_OFFSET, P_ERR_TOLERANCE);
 bool have_obst = false;
 vector<State> obstacles;
 
+array<double, 6> load_gains(string filename) {
+  ifstream gains_file(filename);
+  json gains;
+  gains_file >> gains;
+
+  return {
+    gains["steer"]["kp"],
+    gains["steer"]["ki"],
+    gains["steer"]["kd"],
+    gains["throttle"]["kp"],
+    gains["throttle"]["ki"],
+    gains["throttle"]["kd"]
+  };
+}
+
 void path_planner(vector<double>& x_points, vector<double>& y_points, vector<double>& v_points, double yaw, double velocity, State goal, bool is_junction, string tl_state, vector< vector<double> >& spirals_x, vector< vector<double> >& spirals_y, vector< vector<double> >& spirals_v, vector<int>& best_spirals){
 
   State ego_state;
@@ -214,14 +229,14 @@ int main ()
   time_t timer;
   time(&prev_timer);
 
-  // initialize pid steer
+  // initialize pids steer and throttle
   PID pid_steer = PID();
-  pid_steer.Init(1, 1, 1, -1.2, 1.2);
-
-
-  // initialize pid throttle
   PID pid_throttle = PID();
-  pid_throttle.Init(1, 1, 1, -1.0, 1.0);
+
+  // Initialize gains from a json file
+  auto pid_steer_throttle_gains = load_gains("pid_controller/pid_gains.json");
+  pid_steer.Init(pid_steer_throttle_gains[0], pid_steer_throttle_gains[1], pid_steer_throttle_gains[2], -1.2, 1.2);
+  pid_throttle.Init(pid_steer_throttle_gains[3], pid_steer_throttle_gains[4], pid_steer_throttle_gains[5], -1.0, 1.0);
 
   h.onMessage([&pid_steer, &pid_throttle, &new_delta_time, &timer, &prev_timer, &i, &prev_timer](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode)
   {
