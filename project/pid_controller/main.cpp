@@ -319,8 +319,6 @@ int main ()
           pid_steer.UpdateError(error_steer);
           steer_output = pid_steer.TotalError();
 
-          steer_output = pid_steer.TotalError();
-
           // Save data
           file_steer.seekg(std::ios::beg);
           for(int j=0; j < i - 1; ++j) {
