@@ -1,0 +1,43 @@
+Plots of results and analysis
+A few lines explaining the plots and describing what is plotted: the variables, the phenomenon shown.
+Recognize the action of each part of the PID controller.
+
+I have adapted the implementation so that the PID gains for the steer and throttle controller are read from a json file, namely pid_gains.json, so that I could evaluate different gains without recompiling the project. 
+I tried the following experiments - they follow the following convention
+E\d: Steer[kp, ki, kd], Throttle[kp, ki, kd]
+
+E1: Steer[0.1, 0.0, 0.0], Throttle[0.1, 0.0, 0.0]
+Plots: E1_steer.png, E1_throttle.png
+Observation: In the simulator, the ego vehicle drove straight into the vehicle ahead in its lane. There was light steering right before collision. This indicates that kp for Steering is too low. This is also reflected in the 'Steering Output' curve which stays around zero, and the error which fluctuates very strongly in both directions. So the kp for steering needs to be increased.  
+We see something similar for throttle error plot E1_throttle.png. The throttle output and error have the same pattern, but the throttle plot is like a scaled down version of the Error plot. This indicates that the pattern is right, but the throttle command needs to be scaled as well. 
+
+E2: Steer[0.8, 0.0, 0.0], Throttle[0.8, 0.0, 0.0]
+Plots: E2_steer.png, E2_throttle.png
+Observation: In the simulator, I saw stronger steering and acceleration, but also strong braking. The driving looked quite jerky. The ego vehicle collided again with a stationary car straight ahead in its lane. The steering still seems to be not strong enough, and the strong braking behavior indicates a problem with throttle control too. 
+The steering error plot E2_steer.png shows that the error and output curves are almost the same. This suggests that steering needs to be doubled, since error is desired_steering minus output_steering!
+The throttle error plot shows the throttle output saturating which explains the jerky motion I saw in the simulator. This is reminiscent of bang-bang control, which is approximated with a saturating throttle control. The throttle output clearly needs to be lowered. However, the positive error with saturated throttle suggests that throttle actually needs to be increased. There is probably a problem in the application of the throttle output, or the throttle min-max needs to be different, perhaps [-3, 3]
+
+E3: Steer[1.6, 0.0, 0.0], Throttle[0.8, 0.0, 0.0]
+Plots: E3_steer.png, E3_throttle.png
+Observation: In the simulator, the ego vehicle had noticeable steering once the obstacle vehicle in its lane was close. However, the steering resulted in a 'swinging' motion, and the ego vehicle finally swung out of the road to its left and hit a tree. 
+In the E3_steer.png, this swinging pattern is also clear. A differential correction can probably help here, since it will reduce the total steer control if the correction is already in the right direction.
+The throttle output is saturated like before, because I did not change the throttle between E2 and E3. I will change it once I make the steering control better.
+
+E4: Steer[1.6, 0.8, 0.0], Throttle[0.8, 0.0, 0.0]
+Plots: E4_steer.png, E4_throttle.png
+Observation: In the simulator, the ego's swing was better in the beginning but eventually it started driving around in a circle! In the E4_steer.png, I see that the steering output is saturated at minimum. The kd is probably too high. 
+No difference in the throttle behavior, since that's held unchanged.
+
+
+
+A few lines answer the second question: What is the effect of the PID according to the plots, how each part of the PID affects the control command? The answer explains the role of the different parts of the PID.
+Elaborate a critical analysis of the controller.
+The questions are answered with justified explanations:
+
+How would you design a way to automatically tune the PID parameters? This is an open question, the coherence and justification of the answer is valued.
+
+
+PID controller is a model free controller, i.e. it does not use a model of the car. Could you explain the pros and cons of this type of controller? Find at least 2 pros and cons for model free versus model based.
+
+
+(Optional) What would you do to improve the PID controller? This is an open question, the coherence and justification of the answer is valued.
