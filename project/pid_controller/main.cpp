@@ -228,6 +228,7 @@ int main ()
   time_t prev_timer;
   time_t timer;
   time(&prev_timer);
+  double prev_sim_time = -1.0;
 
   // initialize pids steer and throttle
   PID pid_steer = PID();
@@ -236,9 +237,9 @@ int main ()
   // Initialize gains from a json file
   auto pid_steer_throttle_gains = load_gains("pid_controller/pid_gains.json");
   pid_steer.Init(pid_steer_throttle_gains[0], pid_steer_throttle_gains[1], pid_steer_throttle_gains[2], -1.2, 1.2);
-  pid_throttle.Init(pid_steer_throttle_gains[3], pid_steer_throttle_gains[4], pid_steer_throttle_gains[5], -1.0, 1.0);
+  pid_throttle.Init(pid_steer_throttle_gains[3], pid_steer_throttle_gains[4], pid_steer_throttle_gains[5], -3.0, 3.0);
 
-  h.onMessage([&pid_steer, &pid_throttle, &new_delta_time, &timer, &prev_timer, &i, &prev_timer](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode)
+  h.onMessage([&pid_steer, &pid_throttle, &new_delta_time, &timer, &prev_timer, &prev_sim_time, &i](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode)
   {
         auto s = hasData(data);
 
@@ -288,8 +289,9 @@ int main ()
 
           // Save time and compute delta time
           time(&timer);
-          new_delta_time = difftime(timer, prev_timer);
+          new_delta_time = prev_sim_time >= 0.0 ? sim_time - prev_sim_time : 0.0;
           prev_timer = timer;
+          prev_sim_time = sim_time;
 
           ////////////////////////////////////////
           // Steering control
